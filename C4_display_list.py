@@ -33,7 +33,7 @@ class Menu:
 
         # to List of fears
         self.to_list_button = Button(self.button_frame, text="List of fears", bg="#BD5753",
-                                     fg=button_fg, font=("Georgia", 9), width=8, command=lambda: self.to_do("Get List"))
+                                     fg=button_fg, font=("Georgia", 9), width=8, command=self.to_list)
         self.to_list_button.grid(column=1)
 
         # rounds buttons...
@@ -59,9 +59,9 @@ class Menu:
             all_fears = [f"It's the fear of {row[1]} - {row[0]}" for row in reader]
         return all_fears
 
-    def to_do(self, action):
-        if action == "Get List":
-            DisplayList(self, self.all_fears)
+    def to_list(self):
+        DisplayList(self, self.all_fears)
+        self.to_list_button.config(state=DISABLED)
 
     def to_play(self, num_rounds):
         Play(num_rounds)
@@ -97,8 +97,10 @@ class DisplayList:
         self.fears_listbox = Text(self.list_frame, width=43, height=20, bg="#BD5753", fg=button_fg, font=button_font,
                                   highlightthickness=1, highlightbackground="#BD5753")
         self.fears_listbox.grid(row=1)
+        #
         for fear in all_fears:
             self.fears_listbox.insert(END, fear + "\n")
+        self.fears_listbox.config(state=DISABLED)
 
         # button to close the list window
         self.list_controls = Frame(self.list_frame, bg=button_bg)
@@ -110,7 +112,7 @@ class DisplayList:
 
     def close_display(self, partner):
         # Reshow root (ie: MENU) and end current window
-        root.deiconify()
+        partner.to_list_button.config(state=NORMAL)
         self.list_box.destroy()
 
 

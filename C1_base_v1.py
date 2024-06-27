@@ -15,6 +15,11 @@ class Menu:
         self.gui_frame = Frame(padx=10, pady=10, bg=button_bg)
         self.gui_frame.grid()
 
+        # heading and brief instructions
+        self.menu_heading = Label(self.gui_frame, text="The Fear Test", font=("Georgia", "15"), fg=button_fg,
+                                  bg=button_bg)
+        self.menu_heading.grid(row=0)
+
         instructions = " In this test you will be given a  description of the fear presented to you and you will" \
                        " have to pick what is the name of it for ten rounds." \
                        " \n \n To begin you will be given the list of the fears to review. \nClick Play to begin."

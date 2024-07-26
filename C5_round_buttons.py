@@ -5,6 +5,7 @@ from tkinter import *
 class RoundedButton(Canvas):
     def __init__(self, parent, text, command, **kwargs):
         self.bg_color = kwargs.pop("bg", "#000000")
+        self.pressed_bg_color = kwargs.pop("pressed_bg", "#555555")
         self.fg_color = kwargs.pop("fg", "#FFFFFF")
         self.font = kwargs.pop("font", ("Georgia", 11))
         self.radius = kwargs.pop("radius", 20)
@@ -16,16 +17,30 @@ class RoundedButton(Canvas):
         self.command = command
         self.text = text
 
-        self.create_rounded_rectangle(0, 0, self.width, self.height, self.radius, fill=self.bg_color)
-        self.create_text(self.width // 2, self.height // 2, text=self.text, fill=self.fg_color, font=self.font)
+        self.button_bg = self.create_rounded_rectangle(0, 0, self.width, self.height, self.radius, fill=self.bg_color)
+        self.text_id = self.create_text(self.width // 2, self.height // 2, text=self.text,
+                                        fill=self.fg_color, font=self.font)
 
-        self.bind("<Button-1>", lambda event: self.command())
+        self.bind("<Button-1>", self.on_press)
+        self.bind("<ButtonRelease-1>", self.on_release)
 
     def create_rounded_rectangle(self, x1, y1, x2, y2, r, **kwargs):
         points = [x1 + r, y1, x1 + r, y1, x2 - r, y1, x2 - r, y1, x2, y1, x2, y1 + r, x2, y1 + r, x2, y2 - r,
                   x2, y2 - r, x2, y2, x2 - r, y2, x2 - r, y2, x1 + r, y2, x1 + r, y2, x1, y2, x1, y2 - r, x1, y2 - r,
                   x1, y1 + r, x1, y1 + r, x1, y1]
-        self.create_polygon(points, **kwargs, smooth=True)
+        return self.create_polygon(points, **kwargs, smooth=True)
+
+    def update_text(self, new_text):
+        self.itemconfig(self.text_id, text=new_text)
+
+    def on_press(self, event):
+        self.itemconfig(self.button_bg, fill=self.pressed_bg_color)
+        self.move(self.text_id, 1, 1)
+
+    def on_release(self, event):
+        self.itemconfig(self.button_bg, fill=self.bg_color)
+        self.move(self.text_id, -1, -1)
+        self.command()
 
 
 # create simple GUI for testing rounded buttons

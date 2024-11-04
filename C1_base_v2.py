@@ -3,32 +3,6 @@ from tkinter import *
 import csv
 
 
-class RoundedButton(Canvas):
-    def __init__(self, parent, text, command, **kwargs):
-        self.bg_color = kwargs.pop("bg", "#000000")
-        self.fg_color = kwargs.pop("fg", "#FFFFFF")
-        self.font = kwargs.pop("font", ("Georgia", 11))
-        self.radius = kwargs.pop("radius", 20)
-        self.width = kwargs.pop("width", 100)
-        self.height = kwargs.pop("height", 40)
-
-        super().__init__(parent, width=self.width, height=self.height, bg=parent["bg"], highlightthickness=0, **kwargs)
-
-        self.command = command
-        self.text = text
-
-        self.create_rounded_rectangle(0, 0, self.width, self.height, self.radius, fill=self.bg_color)
-        self.create_text(self.width // 2, self.height // 2, text=self.text, fill=self.fg_color, font=self.font)
-
-        self.bind("<Button-1>", lambda event: self.command())
-
-    def create_rounded_rectangle(self, x1, y1, x2, y2, r, **kwargs):
-        points = [x1 + r, y1, x1 + r, y1, x2 - r, y1, x2 - r, y1, x2, y1, x2, y1 + r, x2, y1 + r, x2, y2 - r,
-                  x2, y2 - r, x2, y2, x2 - r, y2, x2 - r, y2, x1 + r, y2, x1 + r, y2, x1, y2, x1, y2 - r, x1, y2 - r,
-                  x1, y1 + r, x1, y1 + r, x1, y1]
-        self.create_polygon(points, **kwargs, smooth=True)
-
-
 class Menu:
 
     def __init__(self):
@@ -63,9 +37,8 @@ class Menu:
         self.button_frame.grid(row=3)
 
         # to List of fears
-        self.to_list_button = RoundedButton(self.button_frame, text="List of fears", bg="#BD5753",
-                                            fg=button_fg, font=("Georgia", 9), width=75, height=30,
-                                            command=self.to_list)
+        self.to_list_button = Button(self.button_frame, text="List of fears", bg="#BD5753",
+                                     fg=button_fg, font=("Georgia", 9), width=8, command=self.to_list)
         self.to_list_button.grid(column=1)
 
         # rounds buttons...
@@ -77,12 +50,14 @@ class Menu:
             ['#BD5753', 3], ['#BD5753', 5], ['#BD5753', 10]
         ]
 
+        self.rounds_buttons = []  # To store button references
+
         for item in range(0, 3):
-            self.rounds_button = RoundedButton(self.rounds_frame, width=75, height=30, fg=button_fg,
-                                               bg=button_colours[item][0],
-                                               text="{} Rounds".format(button_colours[item][1]), font=button_font,
-                                               command=lambda i=item: self.to_play(button_colours[i][1]))
-            self.rounds_button.grid(row=1, column=item, padx=5, pady=5)
+            button = Button(self.rounds_frame, width=10, fg=button_fg, bg=button_colours[item][0],
+                            text="{} Rounds".format(button_colours[item][1]), font=button_font,
+                            command=lambda i=item: self.to_play(button_colours[i][1], i))
+            button.grid(row=1, column=item, padx=5, pady=5)
+            self.rounds_buttons.append(button)  # Store each button reference
 
     # inserting the csv files
     def fears_csv(self, filepath):
@@ -96,8 +71,9 @@ class Menu:
         DisplayList(self, self.all_fears)
         self.to_list_button.config(state=DISABLED)
 
-    def to_play(self, num_rounds):
-        Play(num_rounds)
+    def to_play(self, num_rounds, button_index):
+        Play(num_rounds, self, button_index)
+        self.rounds_buttons[button_index].config(state=DISABLED)
 
         # hide root window (ie: hide rounds chose window)
         root.withdraw()
@@ -139,9 +115,8 @@ class DisplayList:
         self.list_controls = Frame(self.list_frame, bg=button_bg)
         self.list_controls.grid(row=2)
 
-        self.exit_display = RoundedButton(self.list_controls, text="Close", bg="#BD5753", font=button_font,
-                                          fg=button_fg, command=partial(self.close_display, partner),
-                                          width=70, height=30)
+        self.exit_display = Button(self.list_controls, text="Close", bg="#BD5753", font=button_font, fg=button_fg,
+                                   command=partial(self.close_display, partner))
         self.exit_display.grid(row=0, column=2, pady=5, padx=5)
 
     def close_display(self, partner):
@@ -152,11 +127,11 @@ class DisplayList:
 
 class Play:
 
-    def __init__(self, how_many):
+    def __init__(self, how_many, partner, button_index):
         self.play_box = Toplevel()
 
         # if users press cross at top, closes help and 'releases' list button
-        self.play_box.protocol('WM_DELETE_WINDOW', partial(self.close_play))
+        self.play_box.protocol('WM_DELETE_WINDOW', partial(self.close_play, partner, button_index))
 
         self.play_frame = Frame(self.play_box, pady=10, padx=10)
         self.play_frame.grid()
@@ -168,14 +143,15 @@ class Play:
         self.control_frame = Frame(self.play_frame)
         self.control_frame.grid(row=6)
 
-        self.start_over_button = RoundedButton(self.control_frame, text="Start Over", font=("Georgia", 9),
-                                               command=self.close_play, width=70, height=30)
+        self.start_over_button = Button(self.control_frame, text="Start Over", font=("Georgia", 9),
+                                        command=partial(self.close_play, partner, button_index))
         self.start_over_button.grid(row=0, column=2)
 
-    def close_play(self):
+    def close_play(self, partner, button_index):
         # Reshow root (ie: choose rounds) and end current
         # game / allow new game to start
         root.deiconify()
+        partner.rounds_buttons[button_index].config(state=NORMAL)
         self.play_box.destroy()
 
 

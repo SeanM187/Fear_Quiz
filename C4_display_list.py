@@ -16,7 +16,7 @@ class Menu:
         button_bg = "#000000"
 
         # set up gui frame
-        self.gui_frame = Frame(padx=10, pady=10, bg=button_bg)
+        self.gui_frame = Frame(padx=15, pady=15, bg=button_bg)
         self.gui_frame.grid()
 
         # heading and brief instructions
@@ -26,7 +26,7 @@ class Menu:
 
         instructions = "In this test you will be given a description of the fear presented to you and you will" \
                        " have to pick what is the name of it for ten rounds." \
-                       " \n \n To begin you will be given the list of the fears to review. \n" \
+                       " \n To begin you will be given the list of the fears to review. \n" \
                        "Choose how many rounds to begin."
         self.instructions = Label(self.gui_frame, text=instructions, bg=button_bg, fg=button_fg, font=button_font,
                                   wraplength=250, width=40, justify="center")
@@ -42,18 +42,18 @@ class Menu:
         self.to_list_button.grid(column=1)
 
         # rounds buttons...
-        self.how_many_frame = Frame(self.gui_frame, bg="#000000")
-        self.how_many_frame.grid(row=2)
+        self.rounds_frame = Frame(self.gui_frame, bg="#000000")
+        self.rounds_frame.grid(row=2)
 
         # list to set up rounds button and colours for each
-        btn_color_value = [
+        button_colours = [
             ['#BD5753', 3], ['#BD5753', 5], ['#BD5753', 10]
         ]
 
         for item in range(0, 3):
-            self.rounds_button = Button(self.how_many_frame, width=10, fg=button_fg, bg=btn_color_value[item][0],
-                                        text="{} Rounds".format(btn_color_value[item][1]), font=button_font,
-                                        command=lambda i=item: self.to_play(btn_color_value[i][1]))
+            self.rounds_button = Button(self.rounds_frame, width=10, fg=button_fg, bg=button_colours[item][0],
+                                        text="{} Rounds".format(button_colours[item][1]), font=button_font,
+                                        command=lambda i=item: self.to_play(button_colours[i][1]))
             self.rounds_button.grid(row=1, column=item, padx=5, pady=5)
 
     # inserting the csv files
